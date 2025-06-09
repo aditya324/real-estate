@@ -7,5 +7,6 @@ const express_1 = __importDefault(require("express"));
 const tenetController_1 = require("../controllers/tenetController");
 const router = express_1.default.Router();
 router.get("/:cognitoId", tenetController_1.getTenant);
+router.put("/:cognitoId", tenetController_1.updateTenant);
 router.post("/", tenetController_1.createTenant);
 exports.default = router;
