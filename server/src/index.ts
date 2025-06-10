@@ -12,6 +12,7 @@ import morgan from "morgan";
 
 import { authMiddleware } from "./middleware/authMiddleware";
 import managerRoutes from "./routes/managerRoutes";
+import propertyRoutes from "./routes/propertyRoutes";
 import tenantRoutes from "./routes/tenetRoutes";
 
 dotenv.config();
@@ -30,8 +31,10 @@ app.get("/", (req, res) => {
 
 
 
-app.use("/tenants", authMiddleware(["tenant"]), tenantRoutes);
+app.use("/tenants",  propertyRoutes);
 app.use("/managers", authMiddleware(["manager"]), managerRoutes);
+app.use("/properties", authMiddleware(["manager"]), managerRoutes);
+
 const port = process.env.PORT || 3002;
 
 app.listen(port, () => {
