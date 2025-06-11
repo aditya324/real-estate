@@ -1,5 +1,6 @@
-
 import { PrismaClient } from "@prisma/client";
+
+import { wktToGeoJSON } from "@terraformer/wkt";
 
 import { Request, Response } from "express";
 
@@ -34,7 +35,7 @@ export const createManager = async (
   try {
     const { cognitoId, name, email, phoneNumber } = req.body;
 
-    console.log(req.body, "reqbody")
+    console.log(req.body, "reqbody");
 
     const manager = await prisma.manager.create({
       data: {
@@ -45,7 +46,7 @@ export const createManager = async (
       },
     });
 
-    console.log(manager, "manager")
+    console.log(manager, "manager");
 
     res.status(201).json(manager);
   } catch (error: any) {
@@ -54,7 +55,6 @@ export const createManager = async (
       .json({ message: `Error creating manager: ${error.message}` });
   }
 };
-
 
 export const updateManager = async (
   req: Request,
@@ -67,7 +67,6 @@ export const updateManager = async (
     const updateManager = await prisma.manager.update({
       where: { cognitoId },
       data: {
-  
         name,
         email,
         phoneNumber,
@@ -77,6 +76,52 @@ export const updateManager = async (
     res.json(updateManager);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: `Error updateing updateManager: ${error}` });
+    res
+      .status(500)
+      .json({ message: `Error updateing updateManager: ${error}` });
+  }
+};
+
+export const getManagerProperty = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { cognitoId } = req.params;
+
+    const properties = await prisma.property.findMany({
+      where: { managerCognitoId: cognitoId },
+      include: {
+        location: true,
+      },
+    });
+
+    const propertiesWithFormattedLoacation = await Promise.all(
+      properties.map(async (property) => {
+        const coordinates: { coordinates: string }[] =
+          await prisma.$queryRaw`SELECT ST_asText(coordinates) as coordinates from "Location" where id = ${property.location.id}`;
+
+        const geoJSON: any = wktToGeoJSON(coordinates[0]?.coordinates || "");
+        const longitude = geoJSON.coordinates[0];
+        const latitude = geoJSON.coordinates[1];
+
+        return {
+          ...property,
+          location: {
+            ...property.location,
+            coordinates: {
+              longitude,
+              latitude,
+            },
+          },
+        };
+      })
+    );
+
+    res.json(propertiesWithFormattedLoacation);
+  } catch (err: any) {
+    res
+      .status(500)
+      .json({ message: `Error retrieving manager property: ${err.message}` });
   }
 };

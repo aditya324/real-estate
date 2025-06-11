@@ -12,6 +12,9 @@ const morgan_1 = __importDefault(require("morgan"));
 const authMiddleware_1 = require("./middleware/authMiddleware");
 const managerRoutes_1 = __importDefault(require("./routes/managerRoutes"));
 const propertyRoutes_1 = __importDefault(require("./routes/propertyRoutes"));
+const tenetRoutes_1 = __importDefault(require("./routes/tenetRoutes"));
+const leaseRoutes_1 = __importDefault(require("./routes/leaseRoutes"));
+const applicationRoutes_1 = __importDefault(require("./routes/applicationRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -24,9 +27,11 @@ app.use((0, cors_1.default)());
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
-app.use("/tenants", propertyRoutes_1.default);
+app.use("/tenants", tenetRoutes_1.default);
 app.use("/managers", (0, authMiddleware_1.authMiddleware)(["manager"]), managerRoutes_1.default);
-app.use("/properties", (0, authMiddleware_1.authMiddleware)(["manager"]), managerRoutes_1.default);
+app.use("/properties", (0, authMiddleware_1.authMiddleware)(["manager"]), propertyRoutes_1.default);
+app.use("/leases", leaseRoutes_1.default);
+app.use("/applications", applicationRoutes_1.default);
 const port = process.env.PORT || 3002;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

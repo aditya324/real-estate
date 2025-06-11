@@ -9,4 +9,7 @@ const router = express_1.default.Router();
 router.get("/:cognitoId", tenetController_1.getTenant);
 router.put("/:cognitoId", tenetController_1.updateTenant);
 router.post("/", tenetController_1.createTenant);
+router.get("/:cognitoId/current-residences", tenetController_1.getCurrentResidences);
+router.post("/cognitoId/favorites/:propertyId", tenetController_1.addFavoriteProperty);
+router.delete("/cognitoId/favorites/:propertyId", tenetController_1.removeFavoriteProperty);
 exports.default = router;
